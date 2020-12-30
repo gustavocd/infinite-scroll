@@ -17,6 +17,7 @@ body {
   --text-color: rgb(32, 35, 41);
   --orange-color: rgb(255, 152, 0);
   --boder-bottom-color: rgb(68, 68, 68);
+  --padding-lg: 3rem;
 }
 
 a {
