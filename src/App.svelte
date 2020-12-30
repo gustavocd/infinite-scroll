@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from 'svelte'
+  import { onMount, onDestroy } from 'svelte'
   import { interpret } from 'xstate'
 
   import { transformCharacter, fetchCharacters } from './lib'
@@ -31,6 +31,10 @@
   onMount(() => {
     service.send({ type: 'FETCH' })
     observer.observe(document.querySelector('footer'))
+  })
+
+  onDestroy(() => {
+    observer.unobserve(document.querySelector('footer'))
   })
 </script>
 
