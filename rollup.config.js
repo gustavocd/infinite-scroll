@@ -4,6 +4,8 @@ import commonjs from '@rollup/plugin-commonjs';
 import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
 import css from 'rollup-plugin-css-only';
+import replace from '@rollup/plugin-replace';
+import json from 'rollup-plugin-json';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -23,6 +25,14 @@ export default {
 			}
 		}),
 		css({ output: 'bundle.css' }),
+		json({
+      exclude: [ 'node_modules/**' ],
+      preferConst: true,
+      namedExports: true
+    }),
+		replace({ 
+			'process.env.NODE_ENV': process.env.NODE_ENV
+		}),
 		// If you have external dependencies installed from
 		// npm, you'll most likely need these plugins. In
 		// some cases you'll need additional configuration —

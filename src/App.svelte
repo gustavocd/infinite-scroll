@@ -1,55 +1,36 @@
 <script>
   import { onMount } from 'svelte'
-  import { transformCharacter } from './lib'
+  import { interpret } from 'xstate'
+
+  import { transformCharacter, fetchCharacters } from './lib'
+  import scrollMachine from './lib/scrollMachine'
   import Header from './components/Header.svelte'
   import Loader from './components/Loader.svelte'
   import Character from './components/Character.svelte'
   import Footer from './components/Footer.svelte'
 
-  let loading = true
-  let characters = []
-  let pageInfo = {}
+  const machine = scrollMachine.withConfig({
+    services: { fetchCharacters },
+  })
+  const service = interpret(machine).start()
+
   let options = {
     root: document.getElementById('scrollArea'),
     rootMargin: '0px',
     threshold: 0.5,
   }
-  let observer = new IntersectionObserver(handleIntersection, options)
 
-  async function handleIntersection(event) {
+  let observer = new IntersectionObserver(event => {
     const [entries] = event
-    loading = true
-    try {
-      if (!entries.isIntersecting || !pageInfo.next) {
-        loading = false
-        return
-      }
-      const blob = await fetch(pageInfo.next)
-      const { results, info } = await blob.json()
-      characters = [
-        ...characters,
-        ...results.map(result => transformCharacter(result)),
-      ]
-      pageInfo = info
-      loading = false
-    } catch (error) {
-      loading = false
-      console.log(error)
+    if (!entries.isIntersecting || !$service.context.pageInfo.next) {
+      return
     }
-  }
+    service.send({ type: 'FETCH_MORE' })
+  }, options)
 
-  onMount(async () => {
-    try {
-      const blob = await fetch('https://rickandmortyapi.com/api/character')
-      const { results, info } = await blob.json()
-      characters = results.map(result => transformCharacter(result))
-      pageInfo = info
-      loading = false
-      observer.observe(document.querySelector('footer'))
-    } catch (error) {
-      loading = false
-      console.log(error)
-    }
+  onMount(() => {
+    service.send({ type: 'FETCH' })
+    observer.observe(document.querySelector('footer'))
   })
 </script>
 
@@ -69,24 +50,38 @@
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   }
 
-  .loader {
+  .loader,
+  .error {
+    padding-top: var(--padding-lg);
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+
+  .error {
+    color: var(--orange-color);
+    font-size: 18px;
   }
 </style>
 
 <Header />
 <section class="container" id="scrollArea">
-  <div class="inner">
-    {#each characters as character (character.id)}
-      <Character {character} />
-    {/each}
-  </div>
-  <div class="loader">
-    {#if loading}
+  {#if $service.matches('success') || $service.matches('loadMore')}
+    <div class="inner">
+      {#each $service.context.characters as character (character.id)}
+        <Character {character} />
+      {/each}
+    </div>
+  {/if}
+  {#if $service.matches('failure')}
+    <div class="error">
+      <span>{$service.context.error}</span>
+    </div>
+  {/if}
+  {#if $service.matches('loading') || $service.matches('loadMore')}
+    <div class="loader">
       <Loader />
-    {/if}
-  </div>
+    </div>
+  {/if}
   <Footer />
 </section>
