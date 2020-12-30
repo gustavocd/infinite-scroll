@@ -1,3 +1,7 @@
+<script>
+  import { version } from '../../package.json'
+</script>
+
 <style>
   .header {
     height: 50vh;
@@ -28,7 +32,7 @@
 
 <header class="header">
   <h1 class="title">
-    The Rick and Morty APP
+    The Rick and Morty APP v{version}
     <span>Clone</span>
   </h1>
 </header>
