@@ -1,6 +1,6 @@
 <script>
   import { onMount } from 'svelte'
-  import { trasformCharacter } from './lib'
+  import { transformCharacter } from './lib'
   import Header from './components/Header.svelte'
   import Loader from './components/Loader.svelte'
   import Character from './components/Character.svelte'
@@ -28,7 +28,7 @@
       const { results, info } = await blob.json()
       characters = [
         ...characters,
-        ...results.map(result => trasformCharacter(result)),
+        ...results.map(result => transformCharacter(result)),
       ]
       pageInfo = info
       loading = false
@@ -42,7 +42,7 @@
     try {
       const blob = await fetch('https://rickandmortyapi.com/api/character')
       const { results, info } = await blob.json()
-      characters = results.map(result => trasformCharacter(result))
+      characters = results.map(result => transformCharacter(result))
       pageInfo = info
       loading = false
       observer.observe(document.querySelector('footer'))

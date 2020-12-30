@@ -1,4 +1,4 @@
-export const trasformCharacter = character => {
+export const transformCharacter = character => {
   const {
     id,
     name,
