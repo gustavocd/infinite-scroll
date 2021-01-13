@@ -2,7 +2,7 @@
   import { onMount, onDestroy } from 'svelte'
   import { interpret } from 'xstate'
 
-  import { transformCharacter, fetchCharacters } from './lib'
+  import { fetchCharacters } from './lib'
   import scrollMachine from './lib/scrollMachine'
   import Header from './components/Header.svelte'
   import Loader from './components/Loader.svelte'
@@ -78,9 +78,7 @@
     </div>
   {/if}
   {#if $service.matches('failure')}
-    <div class="error">
-      <span>{$service.context.error}</span>
-    </div>
+    <div class="error"><span>{$service.context.error}</span></div>
   {/if}
   {#if $service.matches('loading') || $service.matches('loadMore')}
     <div class="loader">
